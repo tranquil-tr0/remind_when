@@ -4,6 +4,7 @@ When completing a request to perform an action, it is very important and necessa
 
 Project details:
 - The project is using flutter
+- You can assume that I am running "flutter run", so when testing simply instruct me to, rather than attempting to run the command again.
 - Important note: you can read the project files to better understand how it works.
 
 Use widely used and well-supported solutions. Follow best practices and conventions throughout the project.

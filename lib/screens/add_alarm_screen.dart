@@ -85,9 +85,24 @@ class _AddAlarmScreenState extends State<AddAlarmScreen> {
         await _alarmService.addAlarm(alarm);
         
         if (mounted) {
+          final duration = _selectedDateTime.difference(DateTime.now());
+          final minutes = duration.inMinutes;
+          final hours = duration.inHours;
+          
+          String timeMessage;
+          if (hours > 0) {
+            timeMessage = hours == 1 ? '1 hour' : '$hours hours';
+            if (minutes % 60 > 0) {
+              final remainingMinutes = minutes % 60;
+              timeMessage += ' and ${remainingMinutes == 1 ? '1 minute' : '$remainingMinutes minutes'}';
+            }
+          } else {
+            timeMessage = minutes == 1 ? '1 minute' : '$minutes minutes';
+          }
+          
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Alarm created successfully!'),
+            SnackBar(
+              content: Text('Alarm set for in $timeMessage'),
               backgroundColor: Colors.green,
             ),
           );
