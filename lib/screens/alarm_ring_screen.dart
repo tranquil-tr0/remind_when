@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:alarm/alarm.dart';
+import '../utils/alarm_storage.dart';
 
 class AlarmRingScreen extends StatefulWidget {
   final AlarmSettings alarmSettings;
@@ -55,8 +56,11 @@ class _AlarmRingScreenState extends State<AlarmRingScreen>
     // Stop current alarm
     await Alarm.stop(widget.alarmSettings.id);
     
-    // Set a new alarm for 5 minutes later
-    final snoozeDateTime = DateTime.now().add(const Duration(minutes: 5));
+    // Get stored snooze duration for this alarm
+    final snoozeDurationMinutes = await AlarmStorage.getSnoozeData(widget.alarmSettings.id);
+    
+    // Set a new alarm for the specified snooze duration later
+    final snoozeDateTime = DateTime.now().add(Duration(minutes: snoozeDurationMinutes));
     final snoozeSettings = AlarmSettings(
       id: widget.alarmSettings.id,
       dateTime: snoozeDateTime,

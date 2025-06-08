@@ -1,9 +1,10 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:alarm/alarm.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'alarm_ring_screen.dart';
+import '../widgets/add_alarm_modal.dart';
+import '../utils/alarm_storage.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -70,9 +71,15 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _addAlarm() {
-    // TODO: Navigate to add alarm modal
-    // This will be implemented in a future subtask
-    print('Add alarm button pressed');
+    showDialog(
+      context: context,
+      builder: (context) => const AddAlarmModal(),
+    ).then((result) {
+      // Refresh alarms list if an alarm was added
+      if (result == true) {
+        _loadAlarms();
+      }
+    });
   }
 
   void _triggerDebugAlarm() {
@@ -114,8 +121,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _deleteAlarm(int alarmId) {
-    Alarm.stop(alarmId).then((success) {
+    Alarm.stop(alarmId).then((success) async {
       if (success) {
+        // Clean up stored snooze data for this alarm
+        await AlarmStorage.removeSnoozeData(alarmId);
         _loadAlarms();
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
