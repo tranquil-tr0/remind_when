@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:alarm/alarm.dart';
 import '../utils/alarm_storage.dart';
+import 'custom_sounds_manager.dart';
 
 enum RepeatOption {
   once('Once', []),
@@ -38,17 +39,11 @@ class _AddAlarmModalState extends State<AddAlarmModal> {
   RepeatOption _selectedRepeat = RepeatOption.once;
   SnoozeDuration _selectedSnooze = SnoozeDuration.minutes5;
   String _selectedSound = 'assets/alarm.mp3';
+  String _selectedSoundName = 'Default Alarm';
   bool _vibrate = true;
   double _volume = 0.8;
 
   final _titleController = TextEditingController();
-
-  // Available alarm sounds - can be expanded later
-  final List<Map<String, String>> _availableSounds = [
-    {'name': 'Default Alarm', 'path': 'assets/alarm.mp3'},
-    // Note: These use the same file for now, but have unique identifiers
-    // You can add more sound files later and update these paths
-  ];
 
   @override
   void dispose() {
@@ -79,6 +74,21 @@ class _AddAlarmModalState extends State<AddAlarmModal> {
         _selectedTime = picked;
       });
     }
+  }
+
+  Future<void> _showSoundPicker() async {
+    await showDialog(
+      context: context,
+      builder: (context) => CustomSoundsManager(
+        selectedSoundPath: _selectedSound,
+        onSoundSelected: (soundPath, soundName) {
+          setState(() {
+            _selectedSound = soundPath;
+            _selectedSoundName = soundName;
+          });
+        },
+      ),
+    );
   }
 
   DateTime _getNextAlarmDateTime() {
@@ -310,27 +320,34 @@ class _AddAlarmModalState extends State<AddAlarmModal> {
                     // Alarm Sound
                     _buildSection(
                       'Alarm Sound',
-                      DropdownButtonFormField<String>(
-                        value: _selectedSound,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
+                      GestureDetector(
+                        onTap: () => _showSoundPicker(),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey.shade300),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          prefixIcon: const Icon(Icons.music_note),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.music_note, color: Colors.deepPurple),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  _selectedSoundName,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                              const Icon(Icons.arrow_drop_down),
+                            ],
+                          ),
                         ),
-                        items: _availableSounds.map((sound) {
-                          return DropdownMenuItem(
-                            value: sound['path'],
-                            child: Text(sound['name']!),
-                          );
-                        }).toList(),
-                        onChanged: (String? value) {
-                          if (value != null) {
-                            setState(() {
-                              _selectedSound = value;
-                            });
-                          }
-                        },
                       ),
                     ),
 

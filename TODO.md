@@ -1,1 +1,1 @@
-[ ] allow alarm sound to be set by user
+[ ] error when attempting to add custom alarm sound
